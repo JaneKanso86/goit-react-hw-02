@@ -1,0 +1,14 @@
+.listFriend {
+  display: flex;
+  justify-content: space-around;
+  width: 800px;
+  margin-bottom: 20px;
+}
+
+.listItem {
+  border: 2px solid black;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #eed1d1;
+  color: rgb(36, 35, 35);
+}
