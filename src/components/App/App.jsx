@@ -1,25 +1,64 @@
+import { useState, useEffect } from 'react';
 import React from 'react';
-import FriendList from '../FriendList/FriendList';
-import Profile from '../Profile/Profile';
-import TransactionHistory from '../TransactionHistory/TransactionHistory';
-
-import friends from '../../friends.json';
-import userData from '../../userData.json';
-import transactions from '../../transactions.json';
-import css from './App.module.css';
+import Description from '../Description/Description';
+import Feedback from '../Feedback/Feedback';
+import Options from '../Options/Options';
+import Notification from '../Notification/Notification';
 
 export default function App() {
+  const [values, setFeedback] = useState(() => {
+    const savedValues = window.localStorage.getItem('saved-values');
+
+    if (savedValues !== null) {
+      return JSON.parse(savedValues);
+    }
+
+    return {
+      good: 0,
+      neutral: 0,
+      bad: 0,
+    };
+  });
+  const updateFeedback = (feedbackType) => {
+    setFeedback((prevFeedback) => ({
+      ...prevFeedback,
+      [feedbackType]: prevFeedback[feedbackType] + 1,
+    }));
+  };
+  useEffect(() => {
+    window.localStorage.setItem('saved-values', JSON.stringify(values));
+  }, [values]);
+
+  const resetFeedback = () => {
+    setFeedback({ good: 0, neutral: 0, bad: 0 });
+  };
+
+  const totalFeedback = values.good + values.neutral + values.bad;
+
+  const positiveFeedback = Math.round((values.good / totalFeedback) * 100);
+
   return (
-    <>
-      <Profile
-        name={userData.username}
-        tag={userData.tag}
-        location={userData.location}
-        image={userData.avatar}
-        stats={userData.stats}
-      ></Profile>
-      <FriendList friends={friends} />
-      <TransactionHistory items={transactions} />
-    </>
+    <div>
+      <Description
+        title="Sip Happens Café"
+        content="Please leave your feedback about our service by selecting one of the
+        options below."
+      ></Description>
+      <Options
+        onLeaveFeedback={updateFeedback}
+        totalFeedBack={totalFeedback}
+        onResetFeedback={resetFeedback}
+      ></Options>
+
+      {totalFeedback > 0 ? (
+        <Feedback
+          values={values}
+          totalFeedback={totalFeedback}
+          positiveFeedback={positiveFeedback}
+        ></Feedback>
+      ) : (
+        <Notification></Notification>
+      )}
+    </div>
   );
 }
